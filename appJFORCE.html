@@ -1,0 +1,96 @@
+<template>
+    <lightning-card title=" Create New Appointment">
+    
+        <div class="slds-var-m-around_medium">
+            <!--for Name box-->
+            <lightning-input type="text" label="Name" value={name} onchange={handleNameChange} required></lightning-input>
+
+             <!--for Contact box-->
+            <lightning-record-edit-form object-api-name="Appointment_Detail__c" >
+                        <lightning-input-field field-name="Contact__c" onchange={handleContactChange} required></lightning-input-field>
+           </lightning-record-edit-form> 
+        
+
+
+
+           <!--Date and time in single row -->
+           <div class="slds-grid slds-gutters">
+               <div class="slds-col">
+               <!--for date box-->
+                 <lightning-input type="date" label="Appointment Date " value={appointmentDate} onchange={handleDateChange} required></lightning-input>
+               </div>
+
+               <div class="slds-col">
+               <!--for time box-->
+                <lightning-input type="time" label="Appointment Time " value={appointmentTime} onchange={handleTimeChange} required></lightning-input>
+              </div>
+           </div>
+
+
+            <!--Subject and description in one row-->   
+            <!--for description box-->
+            <div class="slds-grid slds-gutters">
+                <!--for Subject box-->
+                <div class="slds-col">
+                       <lightning-input type="text" label="Subject" value={subject} onchange={handleSubjectChange} required></lightning-input>
+                </div>
+                              
+                <!--for description box-->
+                <div class="slds-col">
+                      <lightning-textarea label="Description" value={description} onchange={handleDescriptionChange} required></lightning-textarea>
+                </div>
+            </div>
+
+
+        <!--Check App and Check slot button in row-->        
+        <div class="slds-grid slds-gutters">
+                <!--for check app-->
+               <div class="slds-col">
+                  <div class="slds-var-m-top_medium">
+                    <lightning-button label="Check Appointment" variant="brand" onclick={handleCheckDuplicate}></lightning-button>
+                     <p>{resultMessage}</p>
+                   </div>
+                </div>
+
+           <!--for slot check-->
+               <div class="slds-col">
+                 <div class="slds-var-m-top_medium">
+                    <lightning-button label="Check Slot" variant="brand" onclick={handleCheckSlot}></lightning-button>
+                   <p>{resultMessage2}</p>
+                </div>
+                </div>
+        </div>
+
+
+    
+            <!--for button box-->
+            <div class="slds-var-m-top_medium">
+               <div class="slds-align_absolute-center">
+                <lightning-button label="Save" onclick={handleSave} variant="brand"></lightning-button>
+              </div>
+           </div>
+        </div>
+
+    <!--code for show the available appointmate dates-->
+    
+        <b>Available Appointment Dates</b> 
+        <template if:true={appointmentSlots}>
+            <template for:each={appointmentSlots} for:item="slot">
+                <li key={slot.Id}>
+                
+                    <!--<b> Slot: </b>{slot.Name}-->
+                    <!--<br/>-->
+                    {slot.Appointment_Date__c}
+                    
+                </li>
+            
+            </template>
+        </template>
+
+        <template if:false={appointmentSlots}>
+            <p>No active appointment slots found.</p>
+        </template>
+    </lightning-card>
+
+
+</template>
