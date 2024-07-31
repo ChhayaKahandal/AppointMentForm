@@ -1,0 +1,86 @@
+public with sharing class AppJfCon 
+{
+   
+    //available slot
+    @AuraEnabled(cacheable=true)
+    public static List<Appointment_Slot__c> getActiveAppointmentSlots()
+    {
+        // Query active appointment slots
+        List<Appointment_Slot__c>li= [SELECT Id, Name, Appointment_Date__c
+                FROM Appointment_Slot__c
+                WHERE isActive__c = true ];
+        
+        return li;
+    }
+    
+  
+   
+    
+    //Method for check the duplicate appointment
+    @AuraEnabled(cacheable=true)
+          public static boolean checkDuplicateAppointment(Date appointmentDate,String appointmentTime)
+          {
+            System.debug('Input values - appointmentDate: ' + appointmentDate + ', appointmentTime: ' + appointmentTime);
+             Time timeValue;
+    
+              try {
+                    // Parse appointmentTime into a Time object
+                    timeValue = Time.newInstance(Integer.valueOf(appointmentTime.split(':')[0]), 
+                                     Integer.valueOf(appointmentTime.split(':')[1]), 
+                                     0, 0);
+                     System.debug('Parsed timeValue: ' + timeValue);
+                  }
+               catch (Exception e) 
+                 {
+                 // Handle invalid time format
+                   System.debug('Error parsing appointment time: ' + e.getMessage());
+                   return false; 
+                 }
+              
+    
+           List<Appointment_Detail__c> existingAppointments = [SELECT Id FROM Appointment_Detail__c
+                                                        WHERE Appointment_Date__c = :appointmentDate
+                                                        AND Appointment_Time__c = :timeValue];
+             //System.debug('SOQL Query executed. Existing appointments count: ' + existingAppointments.size());
+
+            return !existingAppointments.isEmpty();
+         }
+   
+    
+    
+    
+    
+    
+    
+   //method to check the slot avaibility 
+           @AuraEnabled(cacheable=true)
+          public static boolean checkSlotAvailability(Date appointmentDate,String appointmentTime)
+          {
+             System.debug('Input values - appointmentDate: ' + appointmentDate + ', appointmentTime: ' + appointmentTime);
+             Time timeValue;
+    
+                  try 
+                     {
+                      
+                       timeValue = Time.newInstance(Integer.valueOf(appointmentTime.split(':')[0]), 
+                                     Integer.valueOf(appointmentTime.split(':')[1]), 
+                                     0, 0);
+                        System.debug('Parsed timeValue: ' + timeValue);
+                      } 
+                catch (Exception e) 
+                     {
+                     
+                     System.debug('Error parsing appointment time: ' + e.getMessage());
+                     return false; 
+                     }
+        
+               List<Appointment_Slot__c> availableSlots = [SELECT Id FROM Appointment_Slot__c
+                                                WHERE Appointment_Date__c = :appointmentDate
+                                                AND Start_Time__c <= :timeValue
+                                                AND End_Time__c >= :timeValue
+                                                AND isActive__c = true];
+    
+
+                  return !availableSlots.isEmpty();
+               }
+}
